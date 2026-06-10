@@ -1,0 +1,52 @@
+# ============================================
+# PixelKnockOff 配置文件
+# 拍落技能 禁止被击落的携带物黑名单
+# ============================================
+
+# 插件消息语言 (zh_CN / en_US)
+language: zh_CN
+
+# 拍落技能道具黑名单
+# 填写 Pixelmon 物品ID，格式: pixelmon:物品名
+# 命中黑名单的道具不会被拍落夺取，但技能伤害正常结算
+blocked-items:
+  # 进化道具
+  - pixelmon:adamant_crystal
+  - pixelmon:lustrous_globe
+  - pixelmon:griseous_core
+  - pixelmon:pink_ apron
+  - pixelmon:dragon_scale
+  - pixelmon:kings_rock
+  - pixelmon:metal_coat
+  - pixelmon:upgrade
+  - pixelmon:sun_stone
+  - pixelmon:moon_stone
+  - pixelmon:fire_stone
+  - pixelmon:water_stone
+  - pixelmon:thunder_stone
+  - pixelmon:leaf_stone
+  - pixelmon:ice_stone
+  - pixelmon:shiny_stone
+  - pixelmon:dusk_stone
+  - pixelmon:dawn_stone
+  - pixelmon:crackle_petal
+  - pixelmon:strawberry_sweet
+  - pixelmon:love_sweet
+  - pixelmon:berry_sweet
+  - pixelmon:clover_sweet
+  - pixelmon:star_sweet
+  - pixelmon:ribbon_sweet
+  # 传说宝可梦专属道具
+  - pixelmon:play_coin
+  - pixelmon:prison_bottle
+  # 其他重要道具 (根据需要自行添加)
+  # - pixelmon:explanation
+  # - pixelmon:rule_book
+  # - pixelmon:overlay_lens
+
+# 是否在控制台显示调试信息
+debug: false
+
+# ============================================
+# 配置重载指令: /pixelknockoff reload
+# ============================================

@@ -1,0 +1,108 @@
+
+
+基础环境
+
+• 服务端：CatServer 1.16.5（混合端，插件+Mod共存）
+
+• JDK 版本：Java 8
+
+• 依赖规则：服务端核心、Pixelmon 前置/API 全部放在服务端 libs 目录，Maven 编译引用本地 libs 依赖，不远程拉取
+
+• Mod：pokemon.jar
+
+• 开发类型：纯 Bukkit/Paper 插件开发，不做 Mod 开发
+
+整体需求
+
+开发插件拦截 Pixelmon 模组内 拍落(Knock Off) 技能逻辑，实现限制：拍落技能无法打掉配置黑名单内的宝可梦携带物。
+仅屏蔽「道具被拍落、道具生效失效」的核心逻辑，保留技能伤害、动作、动画、特效，其余原版逻辑完全不变。
+
+技术方案要求
+
+1. 无官方事件可用，使用 Java8 原生反射 拦截模组内部方法，禁止使用 ASM、字节码增强、动态类重写，保证混合端稳定性。
+
+2. 运行逻辑：执行拍落判定时，先判断目标宝可梦携带的道具是否在黑名单，若命中黑名单，直接阻断「夺取/卸下携带物」逻辑，伤害正常结算。
+
+3. 配置化：使用 config.yml 维护禁止被拍落的道具ID黑名单，支持插件重载指令刷新配置。
+
+4. 项目结构：标准 Maven Java8 项目，拆分主类、配置工具类、反射工具类、战斗拦截核心类。
+
+5. Maven 配置：强制编译版本 Java 8，依赖作用域为 provided，适配服务端 libs 依赖模式，打包输出普通插件 Jar。
+
+功能详细规则
+
+1. 目标技能：仅针对 拍落 (Knock Off) 单一技能生效，其他技能不受任何影响。
+
+2. 判定规则：
+
+◦ 宝可梦被拍落攻击时，检测其当前携带道具；
+
+◦ 携带道具存在于黑名单 → 本次拍落无法卸下/夺取该道具；
+
+◦ 不在黑名单 → 完全遵循模组原版拍落规则。
+
+3. 运行约束：
+
+◦ 不抛出 NPE、不卡顿战斗线程、不造成服务器卡顿；
+
+◦ 兼容多人服务器、多宝可梦对战场景；
+
+◦ 只屏蔽道具掉落逻辑，伤害、战斗动画、状态效果全部保留。
+
+请输出以下内容
+
+1. 完整 Maven 项目全套 Java 源码（严格兼容 Java 8 语法）；
+
+2. pom.xml 配置（指定 Java8、依赖 scope=provided、适配本地 libs 依赖）；
+
+3. config.yml 配置文件模板（带注释，道具黑名单可自由增删）；
+
+4. 插件 plugin.yml 基础配置；
+
+5. 部署教程：libs 依赖核对、Jar 放置路径、重载指令使用方法；
+
+6. 排错指南：反射失效、拦截不生效、报错、版本不兼容等问题排查。
+二、补充关键参考（你可以追加发给AI，大幅提高准确率）
+
+1. Pixelmon 1.16.5 拍落技能相关参考（核心类/方法）
+
+Pixelmon Reforged 1.16.5 中，拍落道具夺取逻辑核心所在：
+
+• 技能主类：com.pixelmonmod.pixelmon.battles.attacks.specialAttacks.basic.KnockOff
+
+• 核心执行方法：applyEffects(BattleMove, BattleTarget)
+逻辑说明：该方法内部实现「判定携带物、移除携带物、触发拍落额外效果」，优先拦截此方法，在内部加道具黑名单判断。
+2. 配置文件示例（提前写好，AI 可直接沿用）
+# 拍落技能 禁止被击落的携带物黑名单
+# 填写 Pixelmon 物品ID，一行一个
+blocked-items:
+  - pixelmon:adamant_crystal
+  - pixelmon:lustrous_globe
+  - pixelmon:griseous_core
+
+# 插件重载指令
+# 指令：/pixelknockoff reload
+3. 补充一句话术（可选，追加在末尾）
+优先拦截 com.pixelmonmod.pixelmon.battles.attacks.specialAttacks.KnockOff 类下的 applyEffects 方法，在道具移除逻辑执行前加入黑名单判断，满足条件则跳过道具移除流程，保留伤害逻辑。
+三、使用指引（Trae 内操作步骤）
+
+1. 新建 Maven Java 项目，指定 JDK 8；
+
+2. 把上面「完整提问文案」全部粘贴到 Trae AI 对话框；
+
+3. 生成代码后，核对 pom.xml 依赖作用域为 provided；
+
+4. 终端执行打包命令：
+mvn clean package
+5. 打包完成后，target 目录下的 Jar 文件，直接放入服务端 plugins 文件夹；
+
+6. 启动服务端，修改 config.yml 里的道具黑名单，输入重载指令即可生效。
+四、常见避坑提醒（给你自用）
+
+1. 物品ID格式：Pixelmon 道具统一格式 pixelmon:xxx，不要写简称；
+
+2. 依赖问题：CatServer + Pixelmon 的 jar 必须完整放在 libs，否则编译/运行报类找不到；
+
+3. Java8 限制：不要使用 Lambda 简写、Stream 高阶写法、Java9+ 语法；
+
+4. 只拦道具不拦伤害：不要直接 return 整个方法，仅跳过「移除携带物」代码块，否则技能伤害也会失效。

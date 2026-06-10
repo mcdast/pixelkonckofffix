@@ -1,0 +1,12 @@
+name: PixelKnockOff
+version: 1.0.0
+main: com.pixelknockoff.PixelKnockOffPlugin
+api-version: 1.16
+description: 拦截 Pixelmon 拍落技能，保护黑名单道具不被夺取
+author: Developer
+
+commands:
+  pixelknockoff:
+    description: PixelKnockOff 插件指令
+    usage: /pixelknockoff reload - 重载配置
+    aliases: [pko, knockoff]
